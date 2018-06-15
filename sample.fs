@@ -149,3 +149,41 @@ let Or a b = a || b
 let addFloat (a: float) b : float = a + (b : float)
 // float -> float -> float
 
+
+// computation expressions (in Fable + power pack)
+let fetchEntity url =
+    promise {
+        let! fetched = fetch url []
+        let! response = fetched.text()
+        return response
+    }
+
+//
+
+type Simple = JsonProvider<""" { "name":"John", "age":94 } """>
+let simple = Simple.Parse(""" { "name":"Tomas", "age":4 } """)
+simple.Age
+simple.Name
+
+// elmish
+type Model = int
+type Msg = | Inc | Dec
+
+let init() : Model = 0
+
+let view model dispatch =
+    div []
+        [ button [ OnClick (fun _ -> dispatch Dec) ] [ "-" ]
+          div [] [ model.ToString() ]
+          button [ OnClick (fun _ -> dispatch Inc) ] [ "+" ] ]
+
+let update msg (model: Model) =
+    match msg with
+    | Inc -> model + 1
+    | Dec -> model - 1
+
+Program.mkProgram init update view
+|> Program.withDebugger
+|> Program.withHMR
+|> Program.withReact "elmish-app"
+|> Program.run
